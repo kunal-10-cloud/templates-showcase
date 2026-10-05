@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Emergent Template Catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one deliberate dark world. Animated contour field behind a catalog of live-window cards; two featured templates on top. */
+:root {
+  color-scheme: dark;
+  --bg: #0A0C10; --bg-2: #0F1218; --panel: #12161D; --panel-2: #171C25; --line: #232A35; --line-2: #2E3644;
+  --ink: #EEF1F5; --ink-2: #A9B1BE; --ink-3: #6F7887;
+  --accent: #FF6A21; --accent-2: #FF9A5C; --accent-soft: rgba(255,106,33,.14);
+  --live: #3DDC97;
+  --f-display: "Bricolage Grotesque", "Instrument Sans", "Helvetica Neue", sans-serif;
+  --f-ui: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3, p { margin: 0; text-wrap: balance; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 10px; }
+
+#field { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.glow { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(600px 400px at var(--mx, 70%) var(--my, 10%), rgba(255,106,33,.10), transparent 70%),
+              radial-gradient(900px 600px at 10% 110%, rgba(61,220,151,.05), transparent 70%); }
+.wrap { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding-inline: 20px; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 22px; }
+.mark { display: flex; align-items: center; gap: 10px; font: 700 17px var(--f-display); letter-spacing: -.01em; }
+.mark .lg-word { height: 20px; width: auto; color: var(--ink); display: block; }
+.mark-sep { width: 1px; height: 18px; background: var(--line-2); }
+.mark span:last-child { color: var(--ink-2); font-weight: 600; }
+.top nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.top nav a { font-size: 13px; color: var(--ink-2); padding: 6px 12px; border-radius: 999px; border: 1px solid transparent; }
+.top nav a:hover { border-color: var(--line-2); color: var(--ink); }
+
+/* hero */
+.hero { padding-block: 40px 36px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 48px; align-items: center; }
+.eyebrow { font: 600 12px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-2); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--accent); }
+.hero h1 { font: 800 clamp(40px, 6.4vw, 84px)/0.98 var(--f-display); letter-spacing: -.035em; margin-top: 18px; }
+.hero h1 em { font-style: normal; background: linear-gradient(100deg, var(--accent) 10%, var(--accent-2) 60%, #FFD2B0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lede { margin-top: 20px; font-size: 18px; color: var(--ink-2); max-width: 56ch; }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.stat { background: rgba(18,22,29,.82); backdrop-filter: blur(8px); padding: 18px 20px; }
+.stat b { display: block; font: 700 32px/1 var(--f-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--ink-3); }
+
+/* featured */
+.section-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 28px 0 16px; flex-wrap: wrap; }
+.section-h h2 { font: 700 26px var(--f-display); letter-spacing: -.02em; }
+.section-h p { color: var(--ink-3); font-size: 14px; }
+.featured { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+
+.card { position: relative; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(23,28,37,.92), rgba(15,18,24,.92)); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .35s; transform-style: preserve-3d; text-align: left; padding: 0; width: 100%; }
+.card:hover { border-color: var(--line-2); box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.card.live { border-color: rgba(255,106,33,.35); box-shadow: 0 0 0 1px rgba(255,106,33,.12), 0 30px 80px rgba(255,106,33,.10); }
+.card.live::after { content: ""; position: absolute; inset: -1px; border-radius: 22px; padding: 1px; background: conic-gradient(from var(--ang, 0deg), transparent 0 70%, var(--accent) 80%, transparent 90%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: spin 6s linear infinite; pointer-events: none; }
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes spin { to { --ang: 360deg; } }
+
+/* the window (preview) */
+.win { margin: 14px 14px 0; border-radius: 14px; border: 1px solid var(--line-2); background: #0C0F14; overflow: hidden; aspect-ratio: 16 / 10; max-width: 100%; display: flex; flex-direction: column; position: relative; }
+.featured .win { aspect-ratio: 16 / 9; }
+.chrome { height: 26px; flex: none; display: flex; align-items: center; gap: 6px; padding: 0 10px; background: #151A22; border-bottom: 1px solid var(--line); }
+.chrome i { width: 8px; height: 8px; border-radius: 50%; background: #2E3644; }
+.chrome .url .lg-mark { width: 9px; height: 9px; display: inline-block; vertical-align: -1px; margin-right: 5px; color: var(--ink-2); }
+.chrome .url { margin-left: 8px; flex: 1; min-width: 0; height: 15px; border-radius: 5px; background: #0E1218; font: 500 9.5px/15px var(--f-mono); color: var(--ink-3); padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app { flex: 1; display: grid; grid-template-columns: 18% minmax(0,1fr); min-height: 0; }
+.sb { background: #10141B; border-right: 1px solid var(--line); padding: 10px 8px; display: flex; flex-direction: column; gap: 7px; }
+.sb .lg { width: 16px; height: 16px; border-radius: 5px; background: var(--c); margin-bottom: 6px; }
+.sb span { height: 5px; border-radius: 3px; background: #252C38; }
+.sb span.on { background: var(--c); opacity: .9; }
+.cv { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow: hidden; }
+.kp { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.kp div { background: #161B24; border: 1px solid #1F2631; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.kp b { height: 6px; width: 60%; border-radius: 3px; background: var(--c); opacity: .85; }
+.kp s { height: 4px; width: 85%; border-radius: 2px; background: #2A3240; text-decoration: none; }
+.body { flex: 1; min-height: 0; display: flex; gap: 8px; }
+.pane { background: #141922; border: 1px solid #1F2631; border-radius: 8px; flex: 1; min-width: 0; padding: 8px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
+.ln { height: 5px; border-radius: 3px; background: #262E3B; }
+.ln.c { background: var(--c); opacity: .7; }
+.rowx { display: flex; gap: 6px; align-items: center; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+.chipx { height: 8px; width: 22px; border-radius: 4px; background: var(--c); opacity: .35; flex: none; }
+/* preview kinds */
+.bars { flex: 1; display: flex; align-items: flex-end; gap: 4px; }
+.bars i { flex: 1; background: linear-gradient(180deg, var(--c), transparent); border-radius: 3px 3px 0 0; transform-origin: bottom; animation: grow 3.6s ease-in-out infinite; }
+@keyframes grow { 0%,100% { transform: scaleY(.55); } 50% { transform: scaleY(1); } }
+.kan { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.kan > div { background: #11161E; border-radius: 6px; padding: 5px; display: flex; flex-direction: column; gap: 5px; }
+.kan .t { height: 18px; border-radius: 4px; background: #1D2430; border-left: 2px solid var(--c); }
+.kan .t.mv { animation: hop 5s ease-in-out infinite; }
+@keyframes hop { 0%,40% { transform: translateX(0); } 50%,90% { transform: translateX(calc(100% + 11px)); } 100% { transform: translateX(0); } }
+.cal { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr; gap: 3px; }
+.cal i { background: #11161E; border-radius: 3px; }
+.cal i.f { background: var(--c); opacity: .55; animation: blink 4s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: .25; } 50% { opacity: .75; } }
+.map { flex: 1; border-radius: 6px; background:
+  linear-gradient(90deg, transparent 47%, #202836 47% 53%, transparent 53%),
+  linear-gradient(0deg, transparent 58%, #202836 58% 63%, transparent 63%),
+  linear-gradient(30deg, transparent 70%, #1A2230 70% 74%, transparent 74%), #10151C; position: relative; }
+.map .pin { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 4px rgba(255,255,255,.04), 0 0 12px var(--c); }
+.map .pin.go { animation: drive 7s ease-in-out infinite; }
+@keyframes drive { 0% { left: 12%; top: 60%; } 35% { left: 49%; top: 60%; } 65% { left: 49%; top: 22%; } 100% { left: 12%; top: 60%; } }
+.tbl .rowx { padding: 3px 0; border-bottom: 1px solid #1C232E; }
+.tbl .rowx:nth-child(3) { animation: hl 5s ease-in-out infinite; }
+@keyframes hl { 0%,60%,100% { background: transparent; } 70%,90% { background: rgba(255,255,255,.04); } }
+.grid6 { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.grid6 > div { background: #11161E; border-radius: 5px; display: flex; flex-direction: column; overflow: hidden; }
+.grid6 > div b { flex: 1; background: linear-gradient(135deg, #1D2431, #151B25); }
+.grid6 > div s { height: 5px; margin: 4px; border-radius: 3px; background: var(--c); opacity: .6; text-decoration: none; }
+.ring { width: 46px; height: 46px; border-radius: 50%; background: conic-gradient(var(--c) 0 68%, #222A36 68% 100%); display: grid; place-items: center; flex: none; animation: rot 9s linear infinite; }
+.ring::after { content: ""; width: 32px; height: 32px; border-radius: 50%; background: #141922; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.lanes { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.lane { flex: 1; background: #11161E; border-radius: 5px; position: relative; overflow: hidden; }
+.lane b { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; background: var(--c); opacity: .55; }
+.lane b.mv { animation: slide 6s ease-in-out infinite; opacity: .9; }
+@keyframes slide { 0%,30% { left: 6%; } 50%,80% { left: 52%; } 100% { left: 6%; } }
+.typing { display: inline-flex; gap: 3px; }
+.typing i { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-3); animation: ty 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes ty { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+.bub { max-width: 70%; height: 14px; border-radius: 7px; background: #1D2430; }
+.bub.me { align-self: flex-end; background: var(--c); opacity: .5; }
+
+/* live overlay labels on featured windows */
+.toast { position: absolute; right: 12px; bottom: 12px; background: rgba(12,15,20,.9); border: 1px solid var(--line-2); border-radius: 10px; padding: 7px 10px; font-size: 11.5px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; animation: toast 6s ease-in-out infinite; backdrop-filter: blur(6px); }
+.toast b { color: var(--ink); font-weight: 600; }
+@keyframes toast { 0%,10% { opacity: 0; transform: translateY(6px); } 18%,80% { opacity: 1; transform: none; } 90%,100% { opacity: 0; transform: translateY(6px); } }
+.spark { width: 8px; height: 8px; border-radius: 50%; background: var(--live); box-shadow: 0 0 10px var(--live); }
+
+/* card meta */
+.meta { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.meta .row { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+.cat { font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.badge.live { background: rgba(61,220,151,.12); color: var(--live); }
+.badge.live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); animation: ty 1.6s infinite; }
+.badge.soon { background: #1B212B; color: var(--ink-3); }
+.meta h3 { font: 700 20px/1.15 var(--f-display); letter-spacing: -.015em; }
+.featured .meta h3 { font-size: 26px; }
+.meta p { color: var(--ink-2); font-size: 14px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+.foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+.foot .go { color: var(--accent-2); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.card:hover .go svg { transform: translateX(3px); }
+.go svg { transition: transform .2s; }
+
+/* filters */
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.filters button { border: 1px solid var(--line); background: rgba(18,22,29,.7); color: var(--ink-2); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; backdrop-filter: blur(6px); transition: all .2s; }
+.filters button:hover { color: var(--ink); border-color: var(--line-2); }
+.filters button.on { background: var(--ink); color: #0A0C10; border-color: var(--ink); }
+.search { margin-left: auto; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: rgba(18,22,29,.7); border-radius: 999px; padding: 7px 14px; min-width: 0; }
+.search input { background: none; border: 0; outline: 0; color: var(--ink); width: 180px; max-width: 40vw; font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+.card.in { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; z-index: 50; background: rgba(5,6,9,.6); backdrop-filter: blur(4px); display: flex; justify-content: flex-end; }
+.drawer { width: min(520px, 100%); height: 100%; background: var(--panel); border-left: 1px solid var(--line); padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; animation: slidein .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes slidein { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.drawer h3 { font: 700 30px/1.1 var(--f-display); letter-spacing: -.02em; }
+.drawer .lbl { font: 600 11px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+.drawer ul { margin: 0; padding-left: 18px; color: var(--ink-2); }
+.drawer ul li + li { margin-top: 4px; }
+.close { align-self: flex-end; border: 1px solid var(--line-2); background: none; border-radius: 10px; padding: 6px 12px; font-size: 13px; }
+.cta { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--accent); color: #140700; font-weight: 700; border-radius: 12px; padding: 12px 18px; border: 0; }
+.cta.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+footer { position: relative; z-index: 1; padding-block: 56px 48px; color: var(--ink-3); font-size: 13px; }
+
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .hero { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 720px) { .featured, .grid { grid-template-columns: minmax(0,1fr); } .top nav { display: none; } .search { margin-left: 0; width: 100%; } .search input { width: 100%; max-width: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* live iframe preview: render the app at desktop size, scaled into the card */
+.frame-box { position: relative; flex: 1; overflow: hidden; background: #0C0F14; }
+.frame-box iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; background: #fff; }
+.frame-cover { position: absolute; inset: 0; }
+
+/* hero slideshow */
+.show { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.show-frame { border: 1px solid var(--line-2); border-radius: 16px; overflow: hidden; background: #0E1117; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 90px rgba(255,106,33,.08); }
+.show-bar { height: 38px; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: #10141B; border-bottom: 1px solid var(--line); }
+.show-bar > i { width: 9px; height: 9px; border-radius: 50%; background: #2E3644; }
+.show-url { margin: 0 10px; flex: 1; min-width: 0; height: 24px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border-radius: 7px; background: #0B0E13; border: 1px solid var(--line); font: 500 11.5px var(--f-mono); color: var(--ink-2); white-space: nowrap; overflow: hidden; }
+.show-url .lg-mark { width: 12px; height: 12px; color: var(--ink); flex: none; }
+.dlive { font-size: 11px; font-weight: 700; color: var(--live); background: rgba(61,220,151,.12); padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
+.dlive::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--live); box-shadow: 0 0 8px var(--live); animation: ty 1.6s infinite; }
+.show-stage { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #0B0E13; }
+.show-stage .sl { position: absolute; inset: 0; transform: translateX(100%); transition: transform .9s cubic-bezier(.7,0,.2,1); }
+.show-stage .sl.on { transform: translateX(0); }
+.show-stage .sl.out { transform: translateX(-28%); }
+.show-stage .sl.out::after { content: ""; position: absolute; inset: 0; background: rgba(5,6,9,.5); }
+.show-stage iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; background: #fff; }
+.show-cap { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.show-name { font: 700 26px/1.1 var(--f-display); letter-spacing: -.02em; margin-top: 4px; }
+.show-go { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 7px 14px; white-space: nowrap; transition: color .2s, border-color .2s; }
+.show-go:hover { color: var(--ink); border-color: var(--ink-3); }
+.show-go .lg-word { height: 12px; width: auto; color: var(--ink); }
+.show-prog { display: flex; gap: 6px; }
+.show-prog button { flex: 1; height: 3px; border: 0; padding: 0; border-radius: 3px; background: var(--line-2); overflow: hidden; position: relative; }
+.show-prog button i { position: absolute; inset: 0; width: 0; background: var(--ink); }
+.show-prog button.done i { width: 100%; background: var(--ink-3); }
+.show-prog button.on i { animation: fill var(--cycle, 4.5s) linear forwards; }
+@keyframes fill { to { width: 100%; } }
+.lg-mark { display: block; }
+</style>
+</head>
+<body>
+
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="glow" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="mark"><svg class="lg-word" viewBox="0 0 102 22" aria-label="Emergent" role="img"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg><span class="mark-sep"></span><span>Templates</span></div>
+    <nav aria-label="Sections"><a href="#live">Featured</a><a href="#all">All niches</a><a href="#how">How it works</a></nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Vertical software you can talk to</div>
+      <h1>Production software for <em>every kind of business</em>, ready on day one.</h1>
+      <p class="lede">Each template is a complete system for one type of business, built once with real depth. The owner makes it theirs by asking: their fields, steps, brand and data.</p>
+    </div>
+    <div class="show" id="show" aria-label="Templates running on Emergent">
+      <div class="show-frame">
+        <div class="show-bar"><i></i><i></i><i></i><div class="show-url"><svg class="lg-mark" viewBox="-0.6 2.4 14 14" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg><span id="s-url">brightlineheating.emergent.host</span></div><span class="dlive">Live</span></div>
+        <div class="show-stage" id="s-stage"></div>
+      </div>
+      <div class="show-cap">
+        <div class="show-txt"><div class="cat" id="s-niche">Field service &amp; trades</div><div class="show-name" id="s-name">Job OS</div></div>
+        <a class="show-go" id="s-go" href="#" target="_blank" rel="noopener">Open in <svg class="lg-word" viewBox="0 0 102 22" aria-label="Emergent" role="img"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg></a>
+      </div>
+      <div class="show-prog" id="s-prog"></div>
+    </div>
+  </section>
+
+  <div class="section-h" id="live"><div><h2>Featured</h2><p>Our most-used templates. Click any card to open it on Emergent</p></div></div>
+  <div class="featured" id="featured"></div>
+
+  <div class="section-h" id="all" style="margin-top:44px"><div><h2>All templates</h2><p>Every one is live. Open it, then make it yours by asking</p></div></div>
+  <div class="filters" id="filters" role="group" aria-label="Filter by industry"></div>
+  <div class="grid" id="grid"></div>
+
+  <section id="how" style="margin-top:64px">
+    <div class="section-h"><div><h2>How every template works</h2><p>Same core underneath, depth on top</p></div></div>
+    <div class="grid" style="margin-top:0">
+      <div class="card" style="padding:22px;gap:10px"><div class="cat">One core</div><h3 style="font:700 20px var(--f-display)">Shared records</h3><p style="color:var(--ink-2);font-size:14px">Customers, bookings, quotes, invoices, payments, staff and messages live in one data model, so every module talks to every other.</p></div>
+      <div class="card" style="padding:22px;gap:10px"><div class="cat">Deep vertical</div><h3 style="font:700 20px var(--f-display)">Built for the trade</h3><p style="color:var(--ink-2);font-size:14px">Dispatch for contractors, vehicle stock for dealers, charts for clinics. The hard part is built once, with tests.</p></div>
+      <div class="card" style="padding:22px;gap:10px"><div class="cat">Make it yours</div><h3 style="font:700 20px var(--f-display)">Changed by asking</h3><p style="color:var(--ink-2);font-size:14px">The owner asks for a new field, form or rule. The agent ships it with the template's tests, so the depth survives every change.</p></div>
+    </div>
+  </section>
+</div>
+
+<footer><div class="wrap" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><svg class="lg-word" style="height:16px;width:auto;color:var(--ink-2)" viewBox="0 0 102 22" aria-label="Emergent" role="img"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg><span>Template Strategy · Every template opens on Emergent.</span></div></footer>
+
+<div id="drawer-root"></div>
+
+<script src="mini-apps.js" charset="utf-8"></script>
+<script src="landings/a.js" charset="utf-8"></script>
+<script src="landings/b.js" charset="utf-8"></script>
+<script src="landings/c.js" charset="utf-8"></script>
+<script src="landings/live.js" charset="utf-8"></script>
+<script>
+// ---- EDIT THESE ----
+// Link opened when a card is clicked (one per template).
+const PLACEHOLDER = "https://app.emergent.sh/";
+const LINKS = {
+  field: "https://app.emergent.sh/home?job_id=ce88c153-7a2e-4b4d-a256-e645ff64d015",
+  auto: "https://app.emergent.sh/home?job_id=6b605577-84ce-47b4-b481-b964253b296c",
+  repair: PLACEHOLDER, clinic: PLACEHOLDER, property: PLACEHOLDER, realestate: PLACEHOLDER,
+  erp: PLACEHOLDER, fleet: PLACEHOLDER, construction: PLACEHOLDER, restaurant: PLACEHOLDER, hotel: PLACEHOLDER, salon: PLACEHOLDER,
+  gym: PLACEHOLDER, school: PLACEHOLDER, lms: PLACEHOLDER, accounting: PLACEHOLDER, legal: PLACEHOLDER, store: PLACEHOLDER
+};
+// Optional: a running app URL to show inside the card instead of the designed preview ("" = designed preview).
+const LIVE = { field: { preview: "" }, auto: { preview: "" } };
+
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const C = { orange:"#FF6A21", green:"#3DDC97", blue:"#5B8CFF", teal:"#33C9C3", yellow:"#F5C451", pink:"#FF6FA3", violet:"#A68BFF", lime:"#A6E35A", sky:"#4FC3F7", red:"#FF6B6B", sand:"#E2B98A" };
+
+const NICHES = [
+  { id:"field", featured:true, name:"Job OS", niche:"Field service & trades", cat:"Trades", c:C.orange, kind:"dispatch", url:"jobos.emergent.host/schedule",
+    who:"HVAC, plumbing, electrical, cleaning, lawn, pest, pool", desc:"From the first call to the next visit: AI receptionist, quotes with options, dispatch, an offline tech app, payments and plans.",
+    replaces:"ServiceTitan · Jobber · Housecall Pro", tags:["AI receptionist","Dispatch","Tech app","Payments","Memberships"],
+    toast:["New lead","Tom Reyes · No heat"] },
+  { id:"auto", featured:true, name:"Dealer OS", niche:"Auto dealers", cat:"Automotive", c:C.blue, kind:"inventory", url:"dealeros.emergent.host/stock",
+    who:"Independent used-car dealers", desc:"One car, one record, from the auction lot to sold: VIN scan, reconditioning costs, one-click listing everywhere, leads and the deal file.",
+    replaces:"CDK · Tekion · DealerCenter", tags:["VIN scan","Publish everywhere","Leads inbox","Deal file","Profit per car"],
+    toast:["Test drive","Sofia Ramirez · 10:00"] },
+  { id:"repair", name:"Shop OS", niche:"Auto repair shops", cat:"Automotive", c:C.sky, kind:"lanes", who:"Mechanics, body shops, tyre centres", desc:"Bays, digital inspections with photos, estimates the customer approves by text, parts and invoices.", replaces:"Shopmonkey · Tekmetric", tags:["Bay schedule","Inspections","Text approvals"] },
+  { id:"clinic", name:"Clinic OS", niche:"Clinics & practices", cat:"Health", c:C.teal, kind:"calendar", who:"Physio, therapy, dental, GP clinics", desc:"Appointments, patient records, notes, reminders, insurance billing and a patient portal.", replaces:"Jane · Cliniko · Weave", tags:["Booking","Patient records","Billing"] },
+  { id:"property", name:"Property OS", niche:"Property management", cat:"Property", c:C.lime, kind:"table", who:"Landlords and property managers", desc:"Units, leases, rent collection, maintenance requests routed to vendors, and owner statements.", replaces:"AppFolio · Buildium", tags:["Rent","Leases","Maintenance"] },
+  { id:"realestate", name:"Agent CRM", niche:"Real estate agencies", cat:"Property", c:C.yellow, kind:"kanban", who:"Agents and brokerages", desc:"Leads from portals, viewings, pipeline to offer, listings and follow-ups that send themselves.", replaces:"Follow Up Boss · kvCORE", tags:["Pipeline","Viewings","Listings"] },
+  { id:"erp", name:"Maker ERP", niche:"Small manufacturers & wholesale", cat:"Industrial", c:C.sand, kind:"chart", who:"Workshops, food producers, distributors", desc:"Inventory, production runs, B2B ordering portal, purchase orders and batch tracking.", replaces:"Odoo · Cin7 · Katana", tags:["Inventory","Production","B2B orders"] },
+  { id:"fleet", name:"Fleet OS", niche:"Transport & logistics", cat:"Industrial", c:C.sky, kind:"map", who:"Couriers, haulage, removals", desc:"Bookings, dispatch, live tracking, proof of delivery with photos and signatures, invoicing.", replaces:"Onfleet · Samsara (ops)", tags:["Dispatch","Tracking","Proof of delivery"] },
+  { id:"construction", name:"Build OS", niche:"Construction projects", cat:"Trades", c:C.orange, kind:"lanes", who:"Builders and renovation firms", desc:"Estimates, project schedule, subcontractors, site diary with photos, variations and staged invoices.", replaces:"Buildertrend · Procore", tags:["Estimates","Site diary","Staged billing"] },
+  { id:"restaurant", name:"Kitchen OS", niche:"Restaurants", cat:"Hospitality", c:C.red, kind:"grid", who:"Restaurants, cafés, dark kitchens", desc:"Online ordering, table bookings, kitchen display, menu and stock, loyalty.", replaces:"Toast · Square for Restaurants", tags:["Ordering","Bookings","Kitchen display"] },
+  { id:"hotel", name:"Stay OS", niche:"Hotels & rentals", cat:"Hospitality", c:C.violet, kind:"calendar", who:"Boutique hotels, B&Bs, holiday rentals", desc:"Rates and availability, direct booking site, channel sync, housekeeping and guest messages.", replaces:"Cloudbeds · Guesty", tags:["Booking engine","Calendar","Housekeeping"] },
+  { id:"salon", name:"Salon OS", niche:"Salons & spas", cat:"Beauty & fitness", c:C.pink, kind:"calendar", who:"Hair, beauty, nails, spas", desc:"Online booking, staff calendars, client cards, packages, retail and reminders.", replaces:"Fresha · Vagaro · Boulevard", tags:["Booking","Staff","Packages"] },
+  { id:"gym", name:"Studio OS", niche:"Gyms & studios", cat:"Beauty & fitness", c:C.lime, kind:"ring", who:"Gyms, yoga, martial arts, clubs", desc:"Memberships, class schedule, check-in, payments that renew and member app.", replaces:"Mindbody · Glofox", tags:["Memberships","Classes","Check-in"] },
+  { id:"school", name:"Campus OS", niche:"Schools & coaching centres", cat:"Education", c:C.yellow, kind:"table", who:"Tuition centres, private schools", desc:"Admissions, batches, attendance, fees, results and a parent app.", replaces:"Teachmint · Classe365", tags:["Attendance","Fees","Parents"] },
+  { id:"lms", name:"Course OS", niche:"Online courses", cat:"Education", c:C.violet, kind:"chart", who:"Creators and training companies", desc:"Courses, cohorts, quizzes, certificates, payments and a community.", replaces:"Teachable · Kajabi · Thinkific", tags:["Courses","Cohorts","Payments"] },
+  { id:"accounting", name:"Practice OS", niche:"Accounting & tax firms", cat:"Professional", c:C.teal, kind:"kanban", who:"Bookkeepers and accountants", desc:"Client portal, document requests, recurring work tracker, deadlines and billing.", replaces:"Karbon · TaxDome", tags:["Client portal","Deadlines","Docs"] },
+  { id:"legal", name:"Counsel OS", niche:"Law firms", cat:"Professional", c:C.sand, kind:"chat", who:"Small law practices", desc:"Matters, intake, time tracking, documents, trust billing and client messages.", replaces:"Clio · MyCase", tags:["Matters","Time","Billing"] },
+  { id:"store", name:"Store OS", niche:"Online stores", cat:"Commerce", c:C.green, kind:"grid", who:"Brands and shops selling online", desc:"Storefront, catalog, orders, inventory, shipping labels and customer emails.", replaces:"Shopify · WooCommerce", tags:["Storefront","Orders","Inventory"] }
+];
+
+const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const ln = (w, c) => `<div class="ln${c ? " c" : ""}" style="width:${w}%"></div>`;
+
+function preview(n) {
+  const k = n.kind;
+  let inner = "";
+  if (k === "dispatch") {
+    inner = `<div class="kp">${"<div><b></b><s></s></div>".repeat(4)}</div>
+      <div class="body"><div class="pane" style="flex:1.4"><div class="lanes">
+        <div class="lane"><b style="left:4%;width:28%"></b><b style="left:38%;width:22%"></b></div>
+        <div class="lane"><b class="mv" style="width:30%"></b></div>
+        <div class="lane"><b style="left:10%;width:60%"></b></div>
+        <div class="lane"><b style="left:44%;width:26%"></b><b style="left:74%;width:16%"></b></div>
+        <div class="lane"><b style="left:20%;width:34%"></b></div></div></div>
+        <div class="pane"><div class="map"><span class="pin go"></span><span class="pin" style="left:72%;top:30%;opacity:.6"></span><span class="pin" style="left:28%;top:20%;opacity:.6"></span></div></div></div>`;
+  } else if (k === "inventory") {
+    inner = `<div class="kp">${"<div><b></b><s></s></div>".repeat(4)}</div>
+      <div class="body"><div class="pane" style="flex:1.5"><div class="grid6">${"<div><b></b><s></s></div>".repeat(6)}</div></div>
+      <div class="pane">${["Listed","Prep","Listed","Sold","Listed"].map((s,i)=>`<div class="rowx"><span class="chipx" style="${s==="Sold"?"opacity:.9":""}"></span>${ln(60 - i*6)}</div>`).join("")}<div class="bars" style="margin-top:4px">${[40,70,55,85,60,95].map(h=>`<i style="height:${h}%"></i>`).join("")}</div></div></div>`;
+  } else if (k === "calendar") {
+    const f = new Set([1,3,6,8,9,12,15,17,18,21,24,26]);
+    inner = `<div class="body"><div class="pane" style="flex:1.6"><div class="cal">${Array.from({length:30},(_,i)=>`<i class="${f.has(i)?"f":""}" style="animation-delay:${(i%7)*.4}s"></i>`).join("")}</div></div>
+      <div class="pane">${ln(70,1)}${ln(90)}${ln(60)}<div class="rowx"><span class="dot"></span>${ln(70)}</div><div class="rowx"><span class="dot"></span>${ln(55)}</div><div class="rowx"><span class="dot"></span>${ln(65)}</div></div></div>`;
+  } else if (k === "table") {
+    inner = `<div class="kp">${"<div><b></b><s></s></div>".repeat(4)}</div><div class="body"><div class="pane tbl">${[80,65,90,70,75,60].map(w=>`<div class="rowx"><span class="dot"></span>${ln(w*0.5)}<span style="flex:1"></span><span class="chipx"></span></div>`).join("")}</div></div>`;
+  } else if (k === "kanban") {
+    inner = `<div class="body"><div class="pane"><div class="kan"><div><div class="t mv"></div><div class="t"></div><div class="t"></div></div><div><div class="t"></div><div class="t"></div></div><div><div class="t"></div></div></div></div></div>`;
+  } else if (k === "chart") {
+    inner = `<div class="kp">${"<div><b></b><s></s></div>".repeat(4)}</div><div class="body"><div class="pane" style="flex:1.6"><div class="bars">${[35,55,45,70,60,80,65,90,75,95].map((h,i)=>`<i style="height:${h}%;animation-delay:${i*.15}s"></i>`).join("")}</div></div><div class="pane">${ln(80,1)}${ln(60)}${ln(70)}${ln(50)}${ln(65)}</div></div>`;
+  } else if (k === "map") {
+    inner = `<div class="body"><div class="pane" style="flex:1.6"><div class="map"><span class="pin go"></span><span class="pin" style="left:70%;top:35%;opacity:.6"></span><span class="pin" style="left:30%;top:24%;opacity:.6"></span><span class="pin" style="left:80%;top:72%;opacity:.6"></span></div></div><div class="pane">${[1,2,3,4].map(()=>`<div class="rowx"><span class="dot"></span>${ln(65)}</div>`).join("")}</div></div>`;
+  } else if (k === "lanes") {
+    inner = `<div class="body"><div class="pane"><div class="lanes"><div class="lane"><b style="left:4%;width:30%"></b></div><div class="lane"><b class="mv" style="width:34%"></b></div><div class="lane"><b style="left:40%;width:40%"></b></div><div class="lane"><b style="left:12%;width:22%"></b><b style="left:60%;width:24%"></b></div></div></div></div>`;
+  } else if (k === "grid") {
+    inner = `<div class="body"><div class="pane"><div class="grid6">${"<div><b></b><s></s></div>".repeat(6)}</div></div><div class="pane" style="flex:.7">${ln(80,1)}${ln(60)}${ln(70)}<div style="flex:1"></div>${ln(100,1)}</div></div>`;
+  } else if (k === "ring") {
+    inner = `<div class="kp">${"<div><b></b><s></s></div>".repeat(4)}</div><div class="body"><div class="pane" style="flex-direction:row;align-items:center;gap:12px"><div class="ring"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px">${ln(80,1)}${ln(60)}${ln(70)}</div></div><div class="pane">${[1,2,3].map(()=>`<div class="rowx"><span class="dot"></span>${ln(60)}</div>`).join("")}</div></div>`;
+  } else if (k === "chat") {
+    inner = `<div class="body"><div class="pane" style="flex:.8">${[1,2,3,4].map(()=>`<div class="rowx"><span class="dot"></span>${ln(60)}</div>`).join("")}</div><div class="pane"><div class="bub" style="width:60%"></div><div class="bub me" style="width:45%"></div><div class="bub" style="width:70%"></div><div class="bub me" style="width:35%"></div><span class="typing"><i></i><i></i><i></i></span></div></div>`;
+  }
+  const sbItems = Array.from({length:6},(_,i)=>`<span class="${i===1?"on":""}" style="width:${[70,85,60,75,55,65][i]}%"></span>`).join("");
+  const pv = LIVE[n.id] && LIVE[n.id].preview;
+  if (pv) {
+    return `<div class="win" style="--c:${n.c}"><div class="chrome"><i></i><i></i><i></i><div class="url">${pv.replace(/^https?:\/\//, "")}</div></div>
+      <div class="frame-box"><iframe src="${pv}" title="${n.name} live preview" referrerpolicy="no-referrer"></iframe><div class="frame-cover"></div></div></div>`;
+  }
+  const toastHtml = n.toast ? `<div class="toast"><span class="spark"></span><span><b>${n.toast[0]}</b> · ${n.toast[1]}</span></div>` : "";
+  if (window.LANDINGS && LANDINGS[n.id]) {
+    const host = MINI_SPECS && MINI_SPECS[n.id] ? MINI_SPECS[n.id].brand.toLowerCase().replace(/[^a-z0-9]+/g, "") + ".emergent.host" : n.id + ".emergent.host";
+    return `<div class="win" style="--c:${n.c}"><div class="chrome"><i></i><i></i><i></i><div class="url"><svg class="lg-mark" viewBox="-0.6 2.4 14 14" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg>${host}</div></div>
+      <div class="frame-box"><iframe data-land="${n.id}" title="${n.name} preview" tabindex="-1" aria-hidden="true"></iframe><div class="frame-cover"></div></div>${toastHtml}</div>`;
+  }
+  if (window.MINI_SPECS && MINI_SPECS[n.id]) {
+    const host = (n.url || (MINI_SPECS[n.id].brand.toLowerCase().replace(/[^a-z0-9]+/g, "") + ".emergent.host"));
+    return `<div class="win" style="--c:${n.c}"><div class="chrome"><i></i><i></i><i></i><div class="url"><svg class="lg-mark" viewBox="-0.6 2.4 14 14" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg>${host}</div></div>
+      <div class="frame-box"><iframe data-mini="${n.id}" title="${n.name} example screen" tabindex="-1" aria-hidden="true"></iframe><div class="frame-cover"></div></div>${toastHtml}</div>`;
+  }
+  const toast = n.toast ? `<div class="toast"><span class="spark"></span><span><b>${n.toast[0]}</b> · ${n.toast[1]}</span></div>` : "";
+  return `<div class="win" style="--c:${n.c}" aria-hidden="true"><div class="chrome"><i></i><i></i><i></i><div class="url">${n.url || (n.id + ".emergent.host")}</div></div>
+    <div class="app"><div class="sb"><div class="lg"></div>${sbItems}</div><div class="cv">${inner}</div></div>${toast}</div>`;
+}
+
+function cardHTML(n) {
+  const badge = `<span class="badge live">Live</span>`;
+  const action = `<span class="go">Open in Emergent ${ARROW}</span>`;
+  const inner = `${preview(n)}<div class="meta"><div class="row"><span class="cat">${n.niche}</span>${badge}</div><h3>${n.name}</h3><p>${n.desc}</p><div class="tags">${n.tags.map(t=>`<span>${t}</span>`).join("")}</div><div class="foot"><span>Replaces ${n.replaces}</span>${action}</div></div>`;
+  return `<a class="card${n.featured ? " live" : ""}" href="${LINKS[n.id] || PLACEHOLDER}" target="_blank" rel="noopener" data-id="${n.id}" aria-label="Open ${n.name} on Emergent">${inner}</a>`;
+}
+
+// featured
+document.getElementById("featured").innerHTML = NICHES.filter(n=>n.featured).map(cardHTML).join("");
+
+// filters + grid
+const cats = ["All", ...Array.from(new Set(NICHES.map(n=>n.cat)))];
+let active = "All", q = "";
+const fEl = document.getElementById("filters");
+fEl.innerHTML = cats.map(c=>`<button type="button" data-c="${c}" class="${c==="All"?"on":""}">${c}</button>`).join("") +
+  `<label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search a niche" aria-label="Search niches"></label>`;
+function renderGrid() {
+  const list = NICHES.filter(n => !(n.featured && active==="All" && !q) && (active==="All" || n.cat===active) && (!q || (n.name+n.niche+n.who+n.tags.join(" ")).toLowerCase().includes(q)));
+  const g = document.getElementById("grid");
+  g.innerHTML = list.length ? list.map(cardHTML).join("") : `<p style="color:var(--ink-3);grid-column:1/-1;padding:40px 0">No niche matches "${q}". Try "clinic", "salon" or "fleet".</p>`;
+  g.querySelectorAll(".card").forEach((el,i)=>{ el.classList.add("in"); el.style.animationDelay = (i*45)+"ms"; });
+  if (typeof hydrate === "function") hydrate();
+  bindTilt();
+}
+fEl.addEventListener("click", e => { const b = e.target.closest("button[data-c]"); if (!b) return; active = b.dataset.c; fEl.querySelectorAll("button[data-c]").forEach(x=>x.classList.toggle("on", x===b)); renderGrid(); });
+document.getElementById("q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderGrid(); });
+renderGrid();
+
+// drawer
+const root = document.getElementById("drawer-root");
+function openDrawer(n) {
+  root.innerHTML = `<div class="scrim" id="scrim"><div class="drawer" role="dialog" aria-modal="true" aria-label="${n.name}">
+    <button class="close" id="close" type="button">Close</button>
+    ${preview(n)}
+    <div><div class="cat">${n.niche}</div><h3 style="margin-top:6px">${n.name}</h3></div>
+    <p style="color:var(--ink-2)">${n.desc}</p>
+    <div><div class="lbl">Who it's for</div><p>${n.who}</p></div>
+    <div><div class="lbl">What's in it</div><ul>${n.tags.map(t=>`<li>${t}</li>`).join("")}<li>Website, customer portal, team logins and roles</li><li>Make it yours: change fields, forms and rules by asking</li></ul></div>
+    <div><div class="lbl">Replaces</div><p>${n.replaces}</p></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto"><span class="cta ghost">On the roadmap</span></div>
+  </div></div>`;
+  const close = () => { root.innerHTML = ""; };
+  document.getElementById("close").onclick = close;
+  document.getElementById("scrim").onclick = e => { if (e.target.id === "scrim") close(); };
+  document.getElementById("close").focus();
+  hydrate();
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") root.innerHTML = ""; });
+document.getElementById("grid").addEventListener("click", e => { const c = e.target.closest("button.card"); if (c) openDrawer(NICHES.find(n=>n.id===c.dataset.id)); });
+
+// fill dummy app iframes
+function hydrate() {
+  document.querySelectorAll("iframe[data-land]").forEach(f => { if (!f.dataset.done) { f.srcdoc = LANDINGS[f.dataset.land]; f.dataset.done = 1; } });
+  document.querySelectorAll("iframe[data-mini]").forEach(f => { if (!f.dataset.done) { f.srcdoc = renderMiniApp(MINI_SPECS[f.dataset.mini]); f.dataset.done = 1; } });
+  fitFrames();
+}
+// scale iframes to fit their cards
+function fitFrames() {
+  document.querySelectorAll(".frame-box").forEach(b => { const f = b.querySelector("iframe"); if (f) f.style.transform = `scale(${b.clientWidth / 1440})`; });
+}
+addEventListener("resize", fitFrames); hydrate();
+
+// hero slideshow: templates on Emergent
+(function(){
+  if (!window.LANDINGS) return;
+  const ORDER = ["field", "auto", "clinic", "restaurant", "hotel", "store", "fleet", "salon"].filter(id => LANDINGS[id]);
+  const host = id => (window.MINI_SPECS && MINI_SPECS[id] ? MINI_SPECS[id].brand.toLowerCase().replace(/[^a-z0-9]+/g, "") : id) + ".emergent.host";
+  const stage = document.getElementById("s-stage"), prog = document.getElementById("s-prog");
+  const slides = ORDER.map(id => { const d = document.createElement("div"); d.className = "sl"; const f = document.createElement("iframe"); f.tabIndex = -1; f.setAttribute("aria-hidden", "true"); f.title = id; f.srcdoc = LANDINGS[id]; d.appendChild(f); stage.appendChild(d); return d; });
+  prog.innerHTML = ORDER.map((id, j) => `<button type="button" aria-label="Show ${(NICHES.find(n => n.id === id) || {}).name}"><i></i></button>`).join("");
+  const bars = [...prog.children];
+  const fit = () => { const sc = Math.max(stage.clientWidth / 1440, stage.clientHeight / 900); stage.querySelectorAll("iframe").forEach(f => f.style.transform = `scale(${sc})`); };
+  addEventListener("resize", fit); fit();
+  const CYCLE = 4500; document.getElementById("show").style.setProperty("--cycle", CYCLE + "ms");
+  let i = 0, prev = -1, timer;
+  function show(k) {
+    const n = NICHES.find(x => x.id === ORDER[k]);
+    slides.forEach((s, j) => { s.classList.toggle("on", j === k); s.classList.toggle("out", j === prev && j !== k); if (j !== k && j !== prev) s.classList.remove("out"); });
+    if (prev >= 0 && prev !== k) { const p = slides[prev]; setTimeout(() => { if (!p.classList.contains("on")) { p.style.transition = "none"; p.classList.remove("out"); p.offsetWidth; p.style.transition = ""; } }, 950); }
+    bars.forEach((b, j) => { b.classList.toggle("done", j < k); b.classList.remove("on"); });
+    bars[k].offsetWidth; bars[k].classList.add("on");
+    document.getElementById("s-url").textContent = host(ORDER[k]);
+    document.getElementById("s-name").textContent = n.name;
+    document.getElementById("s-niche").textContent = n.niche;
+    document.getElementById("s-go").href = LINKS[n.id] || PLACEHOLDER;
+    prev = k;
+  }
+  const restart = () => { clearInterval(timer); if (!reduce) timer = setInterval(() => { i = (i + 1) % ORDER.length; show(i); }, CYCLE); };
+  bars.forEach((b, j) => b.addEventListener("click", () => { i = j; show(i); restart(); }));
+  slides[0].style.transition = "none"; show(0); slides[0].offsetWidth; slides[0].style.transition = ""; restart();
+})();
+
+// tilt
+function bindTilt() {
+  if (reduce) return;
+  document.querySelectorAll(".card").forEach(el => {
+    if (el._t) return; el._t = 1;
+    el.addEventListener("pointermove", e => { const r = el.getBoundingClientRect(); const x = (e.clientX-r.left)/r.width-.5, y = (e.clientY-r.top)/r.height-.5; el.style.transform = `perspective(900px) rotateX(${-y*4}deg) rotateY(${x*5}deg) translateY(-3px)`; });
+    el.addEventListener("pointerleave", () => { el.style.transform = ""; });
+  });
+}
+bindTilt();
+window.addEventListener("pointermove", e => { document.documentElement.style.setProperty("--mx", e.clientX+"px"); document.documentElement.style.setProperty("--my", e.clientY+"px"); });
+
+// background: drifting contour field
+(function(){
+  const cv = document.getElementById("field"), ctx = cv.getContext("2d");
+  let w, h, dpr, t = 0;
+  function size(){ dpr = Math.min(2, window.devicePixelRatio||1); w = cv.width = innerWidth*dpr; h = cv.height = innerHeight*dpr; }
+  size(); addEventListener("resize", size);
+  function f(x, y, t){ return Math.sin(x*0.0016 + t*0.6) + Math.cos(y*0.0021 - t*0.4) + Math.sin((x+y)*0.0011 + t*0.3); }
+  function frame(){
+    ctx.clearRect(0,0,w,h);
+    const lines = 22, step = 14*dpr;
+    for (let i=0;i<lines;i++){
+      const level = -2.2 + i*0.2;
+      ctx.beginPath();
+      for (let x=0; x<=w; x+=step){
+        const base = (i/lines)*h*1.2 - h*0.1;
+        const y = base + f(x, base, t + i*0.05) * 38*dpr;
+        x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      const hot = i%6===2;
+      ctx.strokeStyle = hot ? "rgba(255,106,33,0.16)" : "rgba(140,155,180,0.07)";
+      ctx.lineWidth = (hot?1.3:1)*dpr;
+      ctx.stroke();
+    }
+    t += 0.004;
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  frame();
+})();
+</script>
+
+</body>
+</html>
