@@ -1,0 +1,8 @@
+Repair preview photos from Wikimedia Commons:
+
+- camry.jpg: Toyota Camry 2.5Q, XV50 front view.jpg by EurovisionNim, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Toyota_Camry_2.5Q,_XV50_front_view.jpg)
+- brake-pads.jpg: Worn metallic disc brake pads.jpg by Troy Sankey, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Worn_metallic_disc_brake_pads.jpg)
+- rotor.jpg: Disc brake worn-out rotor.jpg by Maly LOLek, CC BY-SA 3.0 (https://commons.wikimedia.org/wiki/File:Disc_brake_worn-out_rotor.jpg)
+- tire.jpg: Goodyear Tire Tread Wear.jpg by TaurusEmerald, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Goodyear_Tire_Tread_Wear.jpg)
+- cabin-filter.jpg: A dirty cabin filter.jpg by UnifiedFunctionality, CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:A_dirty_cabin_filter.jpg)
+- air-filter.jpg: Dirty-air-filter.jpg by Ahanix1989 at English Wikipedia, Public domain (https://commons.wikimedia.org/wiki/File:Dirty-air-filter.jpg)
