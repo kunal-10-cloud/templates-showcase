@@ -1,0 +1,4 @@
+Lesson thumbnail photos from Wikimedia Commons:
+
+- ux-sketch.jpg: Rough mobile UX sketch.jpg by Jfietkau, CC0 (https://commons.wikimedia.org/wiki/File:Rough_mobile_UX_sketch.jpg)
+- ui-sketch.png: Sketch of a more radical interface update for the Desktop improvements project.png by Screenshot by User:AHollender (WMF), CC BY-SA 4.0 (https://commons.wikimedia.org/wiki/File:Sketch_of_a_more_radical_interface_update_for_the_Desktop_improvements_project.png)
