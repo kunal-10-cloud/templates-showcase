@@ -224,6 +224,34 @@ footer { position: relative; z-index: 1; padding-block: 56px 48px; color: var(--
 .show-prog button.on i { animation: fill var(--cycle, 4.5s) linear forwards; }
 @keyframes fill { to { width: 100%; } }
 .lg-mark { display: block; }
+
+/* dense grid: at least 6 cards in the first screen */
+.wrap { max-width: 1400px; }
+.sw-head { padding-block: 28px 12px; gap: 16px; flex-direction: row; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.sw-left { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sw-right .search { margin: 0; width: 280px; max-width: 100%; }
+.sw-right .search input { width: 100%; }
+.filters { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.filters::-webkit-scrollbar { display: none; }
+.filters button { flex: none; padding: 6px 12px; font-size: 12.5px; }
+.search { flex: none; }
+#grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+#grid .card { border-radius: 16px; }
+#grid .win { margin: 10px 10px 0; border-radius: 10px; aspect-ratio: 16 / 9.6; }
+#grid .chrome { height: 20px; }
+#grid .chrome .url { height: 12px; font-size: 8.5px; line-height: 12px; }
+#grid .meta { padding: 10px 12px 12px; gap: 6px; }
+#grid .meta h3 { font-size: 16px; }
+#grid .meta p { font-size: 12.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#grid .cat { font-size: 9.5px; }
+#grid .badge { font-size: 10.5px; padding: 2px 8px; }
+#grid .tags { display: none; }
+#grid .foot { font-size: 11px; padding-top: 6px; }
+#grid .foot > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+#grid .toast { display: none; }
+@media (max-width: 1150px) { #grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 820px) { #grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { #grid { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -234,8 +262,9 @@ footer { position: relative; z-index: 1; padding-block: 56px 48px; color: var(--
 
 <div class="wrap">
   <header class="sw-head" id="all">
-    <h1 class="sw-title"><svg class="lg-word sw-logo" viewBox="0 0 102 22" aria-label="Emergent" role="img"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg><span class="sw-pipe" aria-hidden="true"></span><span>Softwares</span></h1>
-    <p>Production software for every kind of business. Every one is live: open it, then make it yours by asking.</p>
+    <div class="sw-left"><h1 class="sw-title"><svg class="lg-word sw-logo" viewBox="0 0 102 22" aria-label="Emergent" role="img"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M97.4311 0V3.14296L99.9458 3.14296V5.343H97.4311V13.5148H101.517V15.7148L95.231 15.7148V13.5148H95.2311V5.343H93.6599V3.14296L95.2311 3.14296V0H97.4311ZM11.9343 6.67398C12.0272 6.86462 12.1097 7.05765 12.1819 7.25243L0.940826 12.735C0.83177 12.5583 0.730424 12.3744 0.637445 12.1838C-0.884051 9.06427 0.411411 5.30199 3.53094 3.78049C6.65047 2.259 10.4128 3.55446 11.9343 6.67398ZM2.20704 9.67024C2.11322 8.0736 2.96786 6.50235 4.49516 5.75743C6.02246 5.01252 7.7868 5.30642 8.98721 6.36334L2.20704 9.67024ZM9.04077 15.0773C11.357 13.9476 12.6676 11.5826 12.5662 9.16257L10.282 10.2767C10.0292 11.464 9.25216 12.527 8.07655 13.1003C6.90093 13.6737 5.58488 13.6316 4.49366 13.0998L2.20941 14.2139C4.054 15.7837 6.72456 16.207 9.04077 15.0773ZM44.935 6.67398C45.028 6.86462 45.1104 7.05765 45.1826 7.25243L33.9416 12.735C33.8325 12.5583 33.7312 12.3744 33.6382 12.1838C32.1167 9.06427 33.4121 5.30199 36.5317 3.78049C39.6512 2.259 43.4135 3.55446 44.935 6.67398ZM35.2078 9.67024C35.114 8.0736 35.9686 6.50235 37.4959 5.75743C39.0232 5.01252 40.7875 5.30642 41.9879 6.36334L35.2078 9.67024ZM42.0415 15.0773C44.3577 13.9476 45.6683 11.5826 45.567 9.16257L43.2827 10.2767C43.03 11.464 42.2529 12.527 41.0773 13.1003C39.9017 13.6737 38.5856 13.6316 37.4944 13.0998L35.2101 14.2139C37.0547 15.7837 39.7253 16.207 42.0415 15.0773ZM80.698 7.25243C80.6258 7.05765 80.5434 6.86462 80.4504 6.67398C78.9289 3.55446 75.1666 2.259 72.0471 3.78049C68.9275 5.30199 67.6321 9.06427 69.1535 12.1838C69.2465 12.3744 69.3479 12.5583 69.4569 12.735L80.698 7.25243ZM73.0113 5.75743C71.484 6.50235 70.6293 8.0736 70.7232 9.67024L77.5033 6.36334C76.3029 5.30642 74.5386 5.01252 73.0113 5.75743ZM81.0823 9.16257C81.1837 11.5826 79.8731 13.9476 77.5569 15.0773C75.2407 16.207 72.5701 15.7837 70.7255 14.2139L73.0098 13.0998C74.101 13.6316 75.417 13.6737 76.5927 13.1003C77.7683 12.527 78.5453 11.464 78.7981 10.2767L81.0823 9.16257ZM14.4575 15.7144L14.4575 4.39991H16.6576L16.6576 5.65708C17.2861 4.7142 18.4794 4.39991 19.8005 4.39991C21.1216 4.39991 22.3148 5.02849 22.9434 5.97137C23.572 5.02849 24.5149 4.39991 26.4006 4.39991C29.0721 4.39991 31.115 6.12852 31.115 8.48571V15.7144H28.915V9.11429C28.915 7.47358 27.8283 6.44281 26.4006 6.44281C24.9304 6.44281 23.8863 7.55881 23.8863 9.11429L23.8863 15.7144H21.6862V9.11429C21.6862 7.47358 20.4637 6.44281 19.0148 6.44281C17.5445 6.44281 16.6576 7.47092 16.6576 9.0264L16.6576 15.7144H14.4575ZM82.9736 4.39992V15.7158H85.1737V9.34687C85.1737 7.74649 86.235 6.59996 87.688 6.59996C89.1199 6.59996 90.1753 7.66226 90.1753 9.34687V15.7158H92.4024V8.84149C92.4024 6.5041 90.7178 4.39991 88.3172 4.39991C86.8432 4.39991 85.7422 4.7516 85.1737 5.65708V4.39992H82.9736ZM66.5568 16.9712C66.1048 19.8213 63.6365 22 60.6592 22C57.682 22 55.2137 19.8213 54.7617 16.9712H57.0061C57.4247 18.598 58.9014 19.8 60.6589 19.8C62.4163 19.8 63.893 18.598 64.3116 16.9712H66.5568ZM54.6878 15.9852L54.6877 16.0285L54.6878 16.0717V15.9852ZM49.6585 5.65732L54.0586 3.45722V5.65732L49.6585 7.85737V15.7145H47.4584V3.77144L49.6585 3.77144V5.65732ZM66.6299 9.70185V3.14235H64.4299V5.1119C63.4016 4.27335 62.0888 3.77051 60.6585 3.77051C57.3605 3.77051 54.687 6.44406 54.687 9.74206C54.687 13.0401 57.3605 15.7136 60.6585 15.7136C63.851 15.7136 66.4583 13.2085 66.6219 10.0568H66.6299V9.78227L66.6301 9.74206L66.6299 9.70185ZM64.4304 9.74282C64.4304 11.8258 62.7418 13.5143 60.6589 13.5143C58.5759 13.5143 56.8874 11.8258 56.8874 9.74282C56.8874 7.65987 58.5759 5.97131 60.6589 5.97131C62.7418 5.97131 64.4304 7.65987 64.4304 9.74282Z"/></svg><span class="sw-pipe" aria-hidden="true"></span><span>Softwares</span></h1>
+    <p>Production software for every kind of business. Every one is live: open it, then make it yours by asking.</p></div>
+    <div class="sw-right" id="sw-search"></div>
   </header>
   <div class="filters" id="filters" role="group" aria-label="Filter by industry"></div>
   <div class="grid" id="grid"></div>
@@ -308,17 +337,17 @@ const slug = (id) => { const n = (typeof NICHES !== "undefined") && NICHES.find(
 const C = { orange:"#FF6A21", green:"#3DDC97", blue:"#5B8CFF", teal:"#33C9C3", yellow:"#F5C451", pink:"#FF6FA3", violet:"#A68BFF", lime:"#A6E35A", sky:"#4FC3F7", red:"#FF6B6B", sand:"#E2B98A" };
 
 const NICHES = [
-  { id:"field", featured:true, name:"Job OS", niche:"Field service & trades", cat:"Trades", c:C.orange, kind:"dispatch", url:"jobos.emergent.host/schedule",
-    who:"HVAC, plumbing, electrical, cleaning, lawn, pest, pool", desc:"From the first call to the next visit: AI receptionist, quotes with options, dispatch, an offline tech app, payments and plans.",
-    replaces:"ServiceTitan · Jobber · Housecall Pro", tags:["AI receptionist","Dispatch","Tech app","Payments","Memberships"],
-    toast:["New lead","Tom Reyes · No heat"] },
+  { id:"repair", name:"Shop OS", niche:"Auto repair shops", cat:"Automotive", c:C.sky, kind:"lanes", who:"Mechanics, body shops, tyre centres", desc:"Bays, digital inspections with photos, estimates the customer approves by text, parts and invoices.", replaces:"Shopmonkey · Tekmetric", tags:["Bay schedule","Inspections","Text approvals"] },
   { id:"auto", featured:true, name:"Dealer OS", niche:"Auto dealers", cat:"Automotive", c:C.blue, kind:"inventory", url:"dealeros.emergent.host/stock",
     who:"Independent used-car dealers", desc:"One car, one record, from the auction lot to sold: VIN scan, reconditioning costs, one-click listing everywhere, leads and the deal file.",
     replaces:"CDK · Tekion · DealerCenter", tags:["VIN scan","Publish everywhere","Leads inbox","Deal file","Profit per car"],
     toast:["Test drive","Sofia Ramirez · 10:00"] },
-  { id:"repair", name:"Shop OS", niche:"Auto repair shops", cat:"Automotive", c:C.sky, kind:"lanes", who:"Mechanics, body shops, tyre centres", desc:"Bays, digital inspections with photos, estimates the customer approves by text, parts and invoices.", replaces:"Shopmonkey · Tekmetric", tags:["Bay schedule","Inspections","Text approvals"] },
   { id:"clinic", name:"Clinic OS", niche:"Clinics & practices", cat:"Health", c:C.teal, kind:"calendar", who:"Physio, therapy, dental, GP clinics", desc:"Appointments, patient records, notes, reminders, insurance billing and a patient portal.", replaces:"Jane · Cliniko · Weave", tags:["Booking","Patient records","Billing"] },
   { id:"property", name:"Property OS", niche:"Property management", cat:"Property", c:C.lime, kind:"table", who:"Landlords and property managers", desc:"Units, leases, rent collection, maintenance requests routed to vendors, and owner statements.", replaces:"AppFolio · Buildium", tags:["Rent","Leases","Maintenance"] },
+  { id:"field", featured:true, name:"Job OS", niche:"Field service & trades", cat:"Trades", c:C.orange, kind:"dispatch", url:"jobos.emergent.host/schedule",
+    who:"HVAC, plumbing, electrical, cleaning, lawn, pest, pool", desc:"From the first call to the next visit: AI receptionist, quotes with options, dispatch, an offline tech app, payments and plans.",
+    replaces:"ServiceTitan · Jobber · Housecall Pro", tags:["AI receptionist","Dispatch","Tech app","Payments","Memberships"],
+    toast:["New lead","Tom Reyes · No heat"] },
   { id:"realestate", name:"Agent CRM", niche:"Real estate agencies", cat:"Property", c:C.yellow, kind:"kanban", who:"Agents and brokerages", desc:"Leads from portals, viewings, pipeline to offer, listings and follow-ups that send themselves.", replaces:"Follow Up Boss · kvCORE", tags:["Pipeline","Viewings","Listings"] },
   { id:"erp", name:"Maker ERP", niche:"Small manufacturers & wholesale", cat:"Industrial", c:C.sand, kind:"chart", who:"Workshops, food producers, distributors", desc:"Inventory, production runs, B2B ordering portal, purchase orders and batch tracking.", replaces:"Odoo · Cin7 · Katana", tags:["Inventory","Production","B2B orders"] },
   { id:"fleet", name:"Fleet OS", niche:"Transport & logistics", cat:"Industrial", c:C.sky, kind:"map", who:"Couriers, haulage, removals", desc:"Bookings, dispatch, live tracking, proof of delivery with photos and signatures, invoicing.", replaces:"Onfleet · Samsara (ops)", tags:["Dispatch","Tracking","Proof of delivery"] },
@@ -349,7 +378,7 @@ const NICHES = [
   { id:"care", name:"Care Agency OS", niche:"Home-care & senior-care agencies", cat:"Health", c:C.sky, kind:"table", brand:"Evergreen Home Care", who:"Home-care & senior-care agencies", desc:"Carer rosters with GPS visit check-ins, care plans and medications, a family portal and funder billing.", replaces:"ShiftCare · AxisCare · CareLineLive", tags:["Rostering", "Care plans", "Billing"] },
   { id:"insurance", name:"Broker Book", niche:"Insurance agencies", cat:"Professional", c:C.blue, kind:"table", brand:"Keystone Insurance Agency", who:"Insurance agencies", desc:"Renewals pipeline, households with every policy, carrier quote comparison and commission reconciliation.", replaces:"Applied Epic · HawkSoft · EZLynx", tags:["Renewals", "Quotes", "Commissions"] },
   { id:"trade", name:"Trade Desk", niche:"Import-export & trading", cat:"Industrial", c:C.sand, kind:"table", brand:"Meridian Exports", who:"Import-export & trading", desc:"Shipments from PI to payment, container tracking, a document vault and LC and FX tracking per deal.", replaces:"Zoho Inventory · Tally · Descartes", tags:["Shipments", "Documents", "FX & LC"] },
-  { id:"architecture", name:"Atelier OS", niche:"Architecture & interior studios", cat:"Property", c:C.violet, kind:"table", brand:"Studio Kaya Interiors", who:"Architecture & interior studios", desc:"Projects by phase, drawings and moodboards for client approval, BOQ with vendor quotes and stage-based fees.", replaces:"Houzz Pro · Programa · Studio Designer", tags:["Approvals", "BOQ", "Stage billing"] },
+  { id:"architecture", name:"Atelier OS", niche:"Architecture & interior studios", cat:"Property", c:C.violet, kind:"table", brand:"Studio Kaya Interiors", who:"Architecture & interior studios", desc:"Projects by phase, drawings and moodboards for client approval, BOQ with vendor quotes and stage-based fees.", replaces:"Houzz Pro · Programa · Studio Designer", tags:["Approvals", "BOQ", "Stage billing"] }
 ];
 
 const ARROW = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -439,6 +468,7 @@ function renderGrid() {
   bindTilt();
 }
 fEl.addEventListener("click", e => { const b = e.target.closest("button[data-c]"); if (!b) return; active = b.dataset.c; fEl.querySelectorAll("button[data-c]").forEach(x=>x.classList.toggle("on", x===b)); renderGrid(); });
+(function(){ const sl = fEl.querySelector(".search"); const host = document.getElementById("sw-search"); if (sl && host) host.appendChild(sl); })();
 document.getElementById("q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); renderGrid(); });
 renderGrid();
 
